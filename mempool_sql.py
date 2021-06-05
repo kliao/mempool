@@ -17,32 +17,38 @@ count = [0] * len(FEELIMIT)
 fees = [0] * len(FEELIMIT)
 found = False
 
-def parse_txdata(obj):
+SATOSHI_PER_BTC = 100000000
+
+
+def parse_tx_data(obj):
     global sizes, count, fees, found
     if "fee" in obj or "fees" in obj:
         if "vsize" in obj:
             size = obj["vsize"]
         else:
             size = obj["size"]
+
         if "fees" in obj:
-            fee = int(obj["fees"]["base"] * 100000000)
+            fee = int(obj["fees"]["base"] * SATOSHI_PER_BTC)
+            afees = int(obj["fees"]["ancestor"] * SATOSHI_PER_BTC)
+            dfees = int(obj["fees"]["descendant"] * SATOSHI_PER_BTC)
         else:
-            fee = int(obj["fee"]*100000000)
+            fee = int(obj["fee"] * SATOSHI_PER_BTC)
+            afees = int(obj["descendantfees"])
+            dfees = int(obj["descendantfees"])
+
         if "ancestorsize" in obj:
             asize = obj["ancestorsize"]
-            afees = obj["ancestorfees"]
         else:
             asize = size
-            afees = fee
+
         if "descendantsize" in obj:
             dsize = obj["descendantsize"]
-            dfees = obj["descendantfees"]
         else:
             dsize = size
-            dfees = fee
 
         afpb = afees / asize  # ancestor fee (includes current)
-        fpb = fee / size      # current fee
+        fpb = fee / size  # current fee
         dfpb = dfees / dsize  # descendant fee (includes current)
         # total average fee for mining all ancestors and descendants.
         tfpb = (afees + dfees - fee) / (asize + dsize - size)
@@ -51,13 +57,14 @@ def parse_txdata(obj):
         found = True
         for i, limit in enumerate(FEELIMIT):
             if (feeperbyte >= limit and
-                    (i == len(FEELIMIT) - 1 or feeperbyte < FEELIMIT[i+1])):
+                    (i == len(FEELIMIT) - 1 or feeperbyte < FEELIMIT[i + 1])):
                 sizes[i] += size
                 count[i] += 1
                 fees[i] += fee
                 break
         return None
     return obj
+
 
 def dump_data(timestamp, sizes, count, fees):
     sizesstr = ",".join(str(x) for x in sizes)
@@ -66,16 +73,18 @@ def dump_data(timestamp, sizes, count, fees):
     with open(MEMPOOLLOG, "a") as logfile:
         logfile.write("[{:d},[{}],[{}],[{}]],\n"
                       .format(timestamp, countstr, sizesstr, feesstr))
-    #proc = Popen([MYSQL, MYSQLMEMPOOLDB], stdin=PIPE, stdout=PIPE)
-    #proc.communicate("INSERT INTO mempool VALUES({:d},{},{},{});\n"
+    # proc = Popen([MYSQL, MYSQLMEMPOOLDB], stdin=PIPE, stdout=PIPE)
+    # proc.communicate("INSERT INTO mempool VALUES({:d},{},{},{});\n"
     #                 .format(timestamp, countstr, sizesstr, feesstr)
     #                 .encode("ascii"))
+
 
 def main():
     global sizes, count, fees, found
     timestamp = int(time.time())
-    json.load(sys.stdin, object_hook=parse_txdata)
+    json.load(sys.stdin, object_hook=parse_tx_data)
     if found:
         dump_data(timestamp, sizes, count, fees)
+
 
 main()
