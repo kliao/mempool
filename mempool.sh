@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DESTDIR=/dev/shm/mempool-btc
+DESTDIR=/Users/kevinliao/github/mempool/web/queue #/dev/shm/mempool-btc
 BITCOINCLI="/usr/local/bin/bitcoin-cli"
-MEMPOOLHOME=/home/ec2-user/repos/mempool
+MEMPOOLHOME=/Users/kevinliao/github/mempool/
 TMPFILE=$DESTDIR/rawdump.txt
 export DESTDIR MEMPOOLHOME
 
@@ -21,8 +21,9 @@ fi
 if ! mkdir $DESTDIR/LOCK 2>/dev/null; then
     exit
 fi
-$BITCOINCLI getrawmempool true > $TMPFILE
-python3 mempool_sql.py < $TMPFILE
+#$BITCOINCLI getrawmempool true > $TMPFILE
+#python3 mempool_sql.py < $TMPFILE
+python3 mempool_sql.py < mempool_test_data.json
 rmdir $DESTDIR/LOCK
 
 # update ram-disk directory, protected by DATALOCK

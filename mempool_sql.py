@@ -2,11 +2,9 @@
 import json
 import sys
 import time
-from subprocess import PIPE, Popen
+import sqlite3
 
-MYSQL = "/usr/bin/mysql"
 MEMPOOLLOG = "mempool.log"
-MYSQLMEMPOOLDB = "btc_mempool"
 
 FEELIMIT = [0.0001, 1, 2, 3, 4, 5, 6, 7, 8, 10,
             12, 14, 17, 20, 25, 30, 40, 50, 60, 70, 80, 100,
@@ -67,16 +65,19 @@ def parse_tx_data(obj):
 
 
 def dump_data(timestamp, sizes, count, fees):
-    sizesstr = ",".join(str(x) for x in sizes)
+    sizestr = ",".join(str(x) for x in sizes)
     countstr = ",".join(str(x) for x in count)
     feesstr = ",".join(str(x) for x in fees)
     with open(MEMPOOLLOG, "a") as logfile:
         logfile.write("[{:d},[{}],[{}],[{}]],\n"
-                      .format(timestamp, countstr, sizesstr, feesstr))
-    # proc = Popen([MYSQL, MYSQLMEMPOOLDB], stdin=PIPE, stdout=PIPE)
-    # proc.communicate("INSERT INTO mempool VALUES({:d},{},{},{});\n"
-    #                 .format(timestamp, countstr, sizesstr, feesstr)
-    #                 .encode("ascii"))
+                      .format(timestamp, countstr, sizestr, feesstr))
+
+    con = sqlite3.connect('mempool.sqlite')
+    cur = con.cursor()
+    print(timestamp, countstr)
+    cur.execute("INSERT INTO mempool VALUES({:d},{},{},{});\n".format(timestamp, countstr, sizestr, feesstr))
+    con.commit()
+    con.close()
 
 
 def main():

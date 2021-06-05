@@ -17,17 +17,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-$dbtype = "mysql";
-$dbdatabase = "dbname=btc_mempool;host=localhost";
-$dbdsn = "$dbtype:$dbdatabase";
-$dbuser = "www";
-$dbpass = "<redacted>";
-$dboptions = array();
+$dbtype = "sqlite";
+$dbname = "mempool.sqlite";
+$dbdsn = "$dbtype:/Users/kevinliao/github/mempool/$dbname";
 
 $feelevels = 46;
 
 try {
-    $db = new PDO($dbdsn, $dbuser, $dbpass, $dboptions);
+    $db = new PDO($dbdsn);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (!isset($_GET["s"]) || !isset($_GET["e"])) {
