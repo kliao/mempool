@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DESTDIR=/dev/shm/mempool-btc
-BITCOINCLI=/home/bitcoin/bin/bitcoin-cli
-MEMPOOLHOME=/home/mempool/mempool
+BITCOINCLI="/usr/local/bin/bitcoin-cli"
+MEMPOOLHOME=/home/ec2-user/repos/mempool
 TMPFILE=$DESTDIR/rawdump.txt
 export DESTDIR MEMPOOLHOME
 

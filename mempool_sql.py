@@ -66,10 +66,10 @@ def dump_data(timestamp, sizes, count, fees):
     with open(MEMPOOLLOG, "a") as logfile:
         logfile.write("[{:d},[{}],[{}],[{}]],\n"
                       .format(timestamp, countstr, sizesstr, feesstr))
-    proc = Popen([MYSQL, MYSQLMEMPOOLDB], stdin=PIPE, stdout=PIPE)
-    proc.communicate("INSERT INTO mempool VALUES({:d},{},{},{});\n"
-                     .format(timestamp, countstr, sizesstr, feesstr)
-                     .encode("ascii"))
+    #proc = Popen([MYSQL, MYSQLMEMPOOLDB], stdin=PIPE, stdout=PIPE)
+    #proc.communicate("INSERT INTO mempool VALUES({:d},{},{},{});\n"
+    #                 .format(timestamp, countstr, sizesstr, feesstr)
+    #                 .encode("ascii"))
 
 def main():
     global sizes, count, fees, found
